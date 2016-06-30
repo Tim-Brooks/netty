@@ -115,6 +115,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
 
     private final SelectorProvider provider;
 
+    private final IOMetrics metrics = new Thing();
+
     /**
      * Boolean that controls determines if a blocked Selector.select should
      * break out of its selection process. In our case we use a timeout for
@@ -393,11 +395,12 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                     processSelectedKeys();
                     runAllTasks();
                 } else {
-                    final long ioStartTime = System.nanoTime();
+                    final long ioStartTime = nanoTime();
 
                     processSelectedKeys();
 
-                    final long ioTime = System.nanoTime() - ioStartTime;
+                    final long ioTime = nanoTime() - ioStartTime;
+                    metrics.markHandledKeys(new SelectCounts(), ioTime);
                     runAllTasks(ioTime * (100 - ioRatio) / ioRatio);
                 }
 
@@ -665,10 +668,12 @@ public final class NioEventLoop extends SingleThreadEventLoop {
 
     private void select(boolean oldWakenUp) throws IOException {
         Selector selector = this.selector;
+        int selectCnt = 0;
+        long startSelectTime = System.nanoTime();
+        long currentTimeNanos = startSelectTime;
+        // TODO: Maybe transition to modified nano time.
+        long selectDeadLineNanos = currentTimeNanos + delayNanos(currentTimeNanos);
         try {
-            int selectCnt = 0;
-            long currentTimeNanos = System.nanoTime();
-            long selectDeadLineNanos = currentTimeNanos + delayNanos(currentTimeNanos);
             for (;;) {
                 long timeoutMillis = (selectDeadLineNanos - currentTimeNanos + 500000L) / 1000000L;
                 if (timeoutMillis <= 0) {
@@ -750,6 +755,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                         selector, e);
             }
             // Harmless exception - log anyway
+        } finally {
+            metrics.markSelect(currentTimeNanos - startSelectTime);
         }
     }
 
@@ -759,6 +766,33 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             selector.selectNow();
         } catch (Throwable t) {
             logger.warn("Failed to update SelectionKeys.", t);
+        }
+    }
+
+    interface IOMetrics {
+
+        public void markSelect(long selectTime);
+
+        public void markHandledKeys(SelectCounts counts, long ioTime);
+    }
+
+    private static class SelectCounts {
+        private int reads;
+        private int connects;
+        private int accepts;
+        private int writes;
+    }
+
+    private static class Thing implements IOMetrics {
+
+        @Override
+        public void markSelect(long selectTime) {
+
+        }
+
+        @Override
+        public void markHandledKeys(SelectCounts counts, long ioTime) {
+
         }
     }
 }

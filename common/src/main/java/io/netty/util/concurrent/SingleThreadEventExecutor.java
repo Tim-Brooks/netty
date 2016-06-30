@@ -89,6 +89,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     }
 
     private final Queue<Runnable> taskQueue;
+    private final TaskMetrics metrics = null;
 
     private volatile Thread thread;
     @SuppressWarnings("unused")
@@ -356,6 +357,9 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
      */
     protected boolean runAllTasks() {
         boolean fetchedAll;
+        long executionStartTime = AbstractScheduledEventExecutor.nanoTime();
+        long successes = 0;
+        long errors = 0;
         do {
             fetchedAll = fetchFromScheduledTaskQueue();
             Runnable task = pollTask();
@@ -366,7 +370,9 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             for (;;) {
                 try {
                     task.run();
+                    ++successes;
                 } catch (Throwable t) {
+                    ++errors;
                     logger.warn("A task raised an exception.", t);
                 }
 
@@ -377,7 +383,8 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             }
         } while (!fetchedAll); // keep on processing until we fetched all scheduled tasks.
 
-        lastExecutionTime = ScheduledFutureTask.nanoTime();
+        lastExecutionTime = AbstractScheduledEventExecutor.nanoTime();
+        metrics.markNonIO(successes, errors, lastExecutionTime - executionStartTime);
         return true;
     }
 

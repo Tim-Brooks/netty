@@ -71,4 +71,8 @@ public interface EventExecutor extends EventExecutorGroup {
      * every call of blocking methods will just return without blocking.
      */
     <V> Future<V> newFailedFuture(Throwable cause);
+
+    public interface TaskMetrics {
+        public void markNonIO(long tasksSuccesses, long taskExceptions, long nanoTimeExecuted);
+    }
 }
