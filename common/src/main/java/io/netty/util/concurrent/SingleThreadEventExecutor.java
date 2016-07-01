@@ -395,13 +395,18 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             return false;
         }
 
-        final long deadline = ScheduledFutureTask.nanoTime() + timeoutNanos;
+        long executionStartTime = AbstractScheduledEventExecutor.nanoTime();
+        final long deadline = executionStartTime + timeoutNanos;
         long runTasks = 0;
         long lastExecutionTime;
+        long successes = 0;
+        long errors = 0;
         for (;;) {
             try {
                 task.run();
+                ++successes;
             } catch (Throwable t) {
+                ++errors;
                 logger.warn("A task raised an exception.", t);
             }
 
@@ -410,7 +415,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             // Check timeout every 64 tasks because nanoTime() is relatively expensive.
             // XXX: Hard-coded value - will make it configurable if it is really a problem.
             if ((runTasks & 0x3F) == 0) {
-                lastExecutionTime = ScheduledFutureTask.nanoTime();
+                lastExecutionTime = AbstractScheduledEventExecutor.nanoTime();
                 if (lastExecutionTime >= deadline) {
                     break;
                 }
@@ -418,12 +423,13 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
 
             task = pollTask();
             if (task == null) {
-                lastExecutionTime = ScheduledFutureTask.nanoTime();
+                lastExecutionTime = AbstractScheduledEventExecutor.nanoTime();
                 break;
             }
         }
 
         this.lastExecutionTime = lastExecutionTime;
+        metrics.markNonIO(successes, errors, lastExecutionTime - executionStartTime);
         return true;
     }
 
