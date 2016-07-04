@@ -89,7 +89,12 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     }
 
     private final Queue<Runnable> taskQueue;
-    private final TaskMetrics metrics = null;
+    private final TaskMetrics metrics = new TaskMetrics() {
+        @Override
+        public void markNonIO(long tasksSuccesses, long taskExceptions, long nanoTimeExecuted) {
+
+        }
+    };
 
     private volatile Thread thread;
     @SuppressWarnings("unused")
