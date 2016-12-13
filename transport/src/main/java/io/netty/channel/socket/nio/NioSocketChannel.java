@@ -24,6 +24,7 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
 import io.netty.channel.FileRegion;
 import io.netty.channel.RecvByteBufAllocator;
+import io.netty.channel.SocketUtils;
 import io.netty.channel.nio.AbstractNioByteChannel;
 import io.netty.channel.socket.DefaultSocketChannelConfig;
 import io.netty.channel.socket.ServerSocketChannel;
@@ -41,6 +42,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.concurrent.Executor;
 
 /**
@@ -90,8 +94,8 @@ public class NioSocketChannel extends AbstractNioByteChannel implements io.netty
     /**
      * Create a new instance
      *
-     * @param parent    the {@link Channel} which created this instance or {@code null} if it was created by the user
-     * @param socket    the {@link SocketChannel} which will be used
+     * @param parent the {@link Channel} which created this instance or {@code null} if it was created by the user
+     * @param socket the {@link SocketChannel} which will be used
      */
     public NioSocketChannel(Channel parent, SocketChannel socket) {
         super(parent, socket);
@@ -328,7 +332,7 @@ public class NioSocketChannel extends AbstractNioByteChannel implements io.netty
 
         boolean success = false;
         try {
-            boolean connected = javaChannel().connect(remoteAddress);
+            boolean connected = SocketUtils.connect(javaChannel(), remoteAddress);
             if (!connected) {
                 selectionKey().interestOps(SelectionKey.OP_CONNECT);
             }
@@ -380,7 +384,7 @@ public class NioSocketChannel extends AbstractNioByteChannel implements io.netty
 
     @Override
     protected void doWrite(ChannelOutboundBuffer in) throws Exception {
-        for (;;) {
+        for (; ; ) {
             int size = in.size();
             if (size == 0) {
                 // All written so clear OP_WRITE
@@ -400,42 +404,42 @@ public class NioSocketChannel extends AbstractNioByteChannel implements io.netty
             // Always us nioBuffers() to workaround data-corruption.
             // See https://github.com/netty/netty/issues/2761
             switch (nioBufferCnt) {
-                case 0:
-                    // We have something else beside ByteBuffers to write so fallback to normal writes.
-                    super.doWrite(in);
-                    return;
-                case 1:
-                    // Only one ByteBuf so use non-gathering write
-                    ByteBuffer nioBuffer = nioBuffers[0];
-                    for (int i = config().getWriteSpinCount() - 1; i >= 0; i --) {
-                        final int localWrittenBytes = ch.write(nioBuffer);
-                        if (localWrittenBytes == 0) {
-                            setOpWrite = true;
-                            break;
-                        }
-                        expectedWrittenBytes -= localWrittenBytes;
-                        writtenBytes += localWrittenBytes;
-                        if (expectedWrittenBytes == 0) {
-                            done = true;
-                            break;
-                        }
+            case 0:
+                // We have something else beside ByteBuffers to write so fallback to normal writes.
+                super.doWrite(in);
+                return;
+            case 1:
+                // Only one ByteBuf so use non-gathering write
+                ByteBuffer nioBuffer = nioBuffers[0];
+                for (int i = config().getWriteSpinCount() - 1; i >= 0; i--) {
+                    final int localWrittenBytes = ch.write(nioBuffer);
+                    if (localWrittenBytes == 0) {
+                        setOpWrite = true;
+                        break;
                     }
-                    break;
-                default:
-                    for (int i = config().getWriteSpinCount() - 1; i >= 0; i --) {
-                        final long localWrittenBytes = ch.write(nioBuffers, 0, nioBufferCnt);
-                        if (localWrittenBytes == 0) {
-                            setOpWrite = true;
-                            break;
-                        }
-                        expectedWrittenBytes -= localWrittenBytes;
-                        writtenBytes += localWrittenBytes;
-                        if (expectedWrittenBytes == 0) {
-                            done = true;
-                            break;
-                        }
+                    expectedWrittenBytes -= localWrittenBytes;
+                    writtenBytes += localWrittenBytes;
+                    if (expectedWrittenBytes == 0) {
+                        done = true;
+                        break;
                     }
-                    break;
+                }
+                break;
+            default:
+                for (int i = config().getWriteSpinCount() - 1; i >= 0; i--) {
+                    final long localWrittenBytes = ch.write(nioBuffers, 0, nioBufferCnt);
+                    if (localWrittenBytes == 0) {
+                        setOpWrite = true;
+                        break;
+                    }
+                    expectedWrittenBytes -= localWrittenBytes;
+                    writtenBytes += localWrittenBytes;
+                    if (expectedWrittenBytes == 0) {
+                        done = true;
+                        break;
+                    }
+                }
+                break;
             }
 
             // Release the fully written buffers, and update the indexes of the partially written buffer.
@@ -475,7 +479,7 @@ public class NioSocketChannel extends AbstractNioByteChannel implements io.netty
         }
     }
 
-    private final class NioSocketChannelConfig  extends DefaultSocketChannelConfig {
+    private final class NioSocketChannelConfig extends DefaultSocketChannelConfig {
         private NioSocketChannelConfig(NioSocketChannel channel, Socket javaSocket) {
             super(channel, javaSocket);
         }

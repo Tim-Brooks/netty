@@ -22,6 +22,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoop;
+import io.netty.channel.SocketUtils;
 import io.netty.channel.oio.OioByteStreamChannel;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
@@ -54,7 +55,7 @@ public class OioSocketChannel extends OioByteStreamChannel implements SocketChan
     /**
      * Create a new instance from the given {@link Socket}
      *
-     * @param socket    the {@link Socket} which is used by this instance
+     * @param socket the {@link Socket} which is used by this instance
      */
     public OioSocketChannel(Socket socket) {
         this(null, socket);
@@ -63,9 +64,9 @@ public class OioSocketChannel extends OioByteStreamChannel implements SocketChan
     /**
      * Create a new instance from the given {@link Socket}
      *
-     * @param parent    the parent {@link Channel} which was used to create this instance. This can be null if the
-     *                  {@link} has no parent as it was created by your self.
-     * @param socket    the {@link Socket} which is used by this instance
+     * @param parent the parent {@link Channel} which was used to create this instance. This can be null if the {@link}
+     * has no parent as it was created by your self.
+     * @param socket the {@link Socket} which is used by this instance
      */
     public OioSocketChannel(Channel parent, Socket socket) {
         super(parent);
@@ -272,14 +273,14 @@ public class OioSocketChannel extends OioByteStreamChannel implements SocketChan
 
     @Override
     protected void doConnect(SocketAddress remoteAddress,
-            SocketAddress localAddress) throws Exception {
+                             SocketAddress localAddress) throws Exception {
         if (localAddress != null) {
             socket.bind(localAddress);
         }
 
         boolean success = false;
         try {
-            socket.connect(remoteAddress, config().getConnectTimeoutMillis());
+            SocketUtils.connect(socket, remoteAddress, config().getConnectTimeoutMillis());
             activate(socket.getInputStream(), socket.getOutputStream());
             success = true;
         } catch (SocketTimeoutException e) {
