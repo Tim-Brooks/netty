@@ -22,6 +22,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelMetadata;
 import io.netty.channel.ChannelOutboundBuffer;
+import io.netty.channel.SocketUtils;
 import io.netty.channel.nio.AbstractNioMessageChannel;
 import io.netty.channel.udt.DefaultUdtChannelConfig;
 import io.netty.channel.udt.UdtChannel;
@@ -108,7 +109,7 @@ public class NioUdtMessageConnectorChannel extends AbstractNioMessageChannel imp
         doBind(localAddress != null? localAddress : new InetSocketAddress(0));
         boolean success = false;
         try {
-            final boolean connected = javaChannel().connect(remoteAddress);
+            final boolean connected = SocketUtils.connect(javaChannel(), remoteAddress);
             if (!connected) {
                 selectionKey().interestOps(
                         selectionKey().interestOps() | OP_CONNECT);

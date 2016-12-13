@@ -27,13 +27,13 @@ public final class SocketUtils {
     private SocketUtils() {
     }
 
-    public static void connect(final Socket socketChannel, final SocketAddress remoteAddress, final int timeout)
+    public static void connect(final Socket socket, final SocketAddress remoteAddress, final int timeout)
             throws Exception {
         try {
             AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
                 @Override
                 public Void run() throws Exception {
-                    socketChannel.connect(remoteAddress, timeout);
+                    socket.connect(remoteAddress, timeout);
                     return null;
                 }
             });
