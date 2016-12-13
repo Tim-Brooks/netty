@@ -21,6 +21,7 @@ import com.barchart.udt.nio.SocketChannelUDT;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelMetadata;
 import io.netty.channel.ChannelOutboundBuffer;
+import io.netty.channel.SocketUtils;
 import io.netty.channel.nio.AbstractNioMessageChannel;
 import io.netty.channel.udt.DefaultUdtServerChannelConfig;
 import io.netty.channel.udt.UdtChannel;
@@ -123,6 +124,7 @@ public abstract class NioUdtAcceptorChannel extends AbstractNioMessageChannel im
     protected SocketAddress localAddress0() {
         return javaChannel().socket().getLocalSocketAddress();
     }
+
     @Override
     public InetSocketAddress localAddress() {
         return (InetSocketAddress) super.localAddress();
@@ -145,7 +147,7 @@ public abstract class NioUdtAcceptorChannel extends AbstractNioMessageChannel im
 
     @Override
     protected int doReadMessages(List<Object> buf) throws Exception {
-        final SocketChannelUDT channelUDT = javaChannel().accept();
+        final SocketChannelUDT channelUDT = (SocketChannelUDT) SocketUtils.accept(javaChannel());
         if (channelUDT == null) {
             return 0;
         } else {

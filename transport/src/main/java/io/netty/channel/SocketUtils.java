@@ -17,6 +17,7 @@ package io.netty.channel;
 
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -49,6 +50,19 @@ public final class SocketUtils {
                 @Override
                 public Boolean run() throws Exception {
                     return socketChannel.connect(remoteAddress);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw (Exception) e.getCause();
+        }
+    }
+
+    public static SocketChannel accept(final ServerSocketChannel serverSocketChannel) throws Exception {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<SocketChannel>() {
+                @Override
+                public SocketChannel run() throws Exception {
+                    return serverSocketChannel.accept();
                 }
             });
         } catch (PrivilegedActionException e) {

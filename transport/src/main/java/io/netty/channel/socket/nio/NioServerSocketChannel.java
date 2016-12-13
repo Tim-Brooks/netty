@@ -18,6 +18,7 @@ package io.netty.channel.socket.nio;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelMetadata;
 import io.netty.channel.ChannelOutboundBuffer;
+import io.netty.channel.SocketUtils;
 import io.netty.channel.nio.AbstractNioMessageChannel;
 import io.netty.channel.socket.DefaultServerSocketChannelConfig;
 import io.netty.channel.socket.ServerSocketChannelConfig;
@@ -137,7 +138,7 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
 
     @Override
     protected int doReadMessages(List<Object> buf) throws Exception {
-        SocketChannel ch = javaChannel().accept();
+        SocketChannel ch = SocketUtils.accept(javaChannel());
 
         try {
             if (ch != null) {
@@ -189,7 +190,7 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
         throw new UnsupportedOperationException();
     }
 
-    private final class NioServerSocketChannelConfig  extends DefaultServerSocketChannelConfig {
+    private final class NioServerSocketChannelConfig extends DefaultServerSocketChannelConfig {
         private NioServerSocketChannelConfig(NioServerSocketChannel channel, ServerSocket javaSocket) {
             super(channel, javaSocket);
         }
