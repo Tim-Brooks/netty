@@ -22,7 +22,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoop;
-import io.netty.channel.SocketUtils;
+import io.netty.util.SocketUtils;
 import io.netty.channel.oio.OioByteStreamChannel;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;

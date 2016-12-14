@@ -22,7 +22,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelMetadata;
 import io.netty.channel.ChannelOutboundBuffer;
-import io.netty.channel.SocketUtils;
+import io.netty.util.SocketUtils;
 import io.netty.channel.nio.AbstractNioMessageChannel;
 import io.netty.channel.udt.DefaultUdtChannelConfig;
 import io.netty.channel.udt.UdtChannel;

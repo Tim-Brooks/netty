@@ -13,13 +13,15 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.netty.channel;
+package io.netty.util;
 
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
@@ -68,5 +70,15 @@ public final class SocketUtils {
         } catch (PrivilegedActionException e) {
             throw (Exception) e.getCause();
         }
+    }
+
+    public static InetSocketAddress socketAddress(final String hostname, final int port) {
+
+        return AccessController.doPrivileged(new PrivilegedAction<InetSocketAddress>() {
+            @Override
+            public InetSocketAddress run() {
+                return new InetSocketAddress(hostname, port);
+            }
+        });
     }
 }

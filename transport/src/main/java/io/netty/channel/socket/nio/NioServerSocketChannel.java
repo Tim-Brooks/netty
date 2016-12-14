@@ -18,7 +18,7 @@ package io.netty.channel.socket.nio;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelMetadata;
 import io.netty.channel.ChannelOutboundBuffer;
-import io.netty.channel.SocketUtils;
+import io.netty.util.SocketUtils;
 import io.netty.channel.nio.AbstractNioMessageChannel;
 import io.netty.channel.socket.DefaultServerSocketChannelConfig;
 import io.netty.channel.socket.ServerSocketChannelConfig;

@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.SocketUtils;
+import io.netty.util.SocketUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 

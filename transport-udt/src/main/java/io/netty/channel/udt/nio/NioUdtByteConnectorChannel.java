@@ -23,7 +23,7 @@ import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.FileRegion;
 import io.netty.channel.RecvByteBufAllocator;
-import io.netty.channel.SocketUtils;
+import io.netty.util.SocketUtils;
 import io.netty.channel.nio.AbstractNioByteChannel;
 import io.netty.channel.udt.DefaultUdtChannelConfig;
 import io.netty.channel.udt.UdtChannel;
