@@ -87,6 +87,19 @@ public final class SocketUtils {
         }
     }
 
+    public static InetAddress[] allAddressesByName(final String hostname) throws UnknownHostException {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<InetAddress[]>() {
+                @Override
+                public InetAddress[] run() throws UnknownHostException {
+                    return InetAddress.getAllByName(hostname);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw (UnknownHostException) e.getCause();
+        }
+    }
+
     public static InetSocketAddress socketAddress(final String hostname, final int port) {
 
         return AccessController.doPrivileged(new PrivilegedAction<InetSocketAddress>() {
