@@ -15,6 +15,7 @@
  */
 package io.netty.util;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -33,17 +34,17 @@ public final class SocketUtils {
     }
 
     public static void connect(final Socket socket, final SocketAddress remoteAddress, final int timeout)
-            throws Exception {
+            throws IOException {
         try {
             AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
                 @Override
-                public Void run() throws Exception {
+                public Void run() throws IOException {
                     socket.connect(remoteAddress, timeout);
                     return null;
                 }
             });
         } catch (PrivilegedActionException e) {
-            throw (Exception) e.getCause();
+            throw (IOException) e.getCause();
         }
     }
 
@@ -52,25 +53,25 @@ public final class SocketUtils {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Boolean>() {
                 @Override
-                public Boolean run() throws Exception {
+                public Boolean run() throws IOException {
                     return socketChannel.connect(remoteAddress);
                 }
             });
         } catch (PrivilegedActionException e) {
-            throw (Exception) e.getCause();
+            throw (IOException) e.getCause();
         }
     }
 
-    public static SocketChannel accept(final ServerSocketChannel serverSocketChannel) throws Exception {
+    public static SocketChannel accept(final ServerSocketChannel serverSocketChannel) throws IOException {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<SocketChannel>() {
                 @Override
-                public SocketChannel run() throws Exception {
+                public SocketChannel run() throws IOException {
                     return serverSocketChannel.accept();
                 }
             });
         } catch (PrivilegedActionException e) {
-            throw (Exception) e.getCause();
+            throw (IOException) e.getCause();
         }
     }
 
