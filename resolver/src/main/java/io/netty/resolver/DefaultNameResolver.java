@@ -16,6 +16,7 @@
 
 package io.netty.resolver;
 
+import io.netty.util.SocketUtils;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 
@@ -37,7 +38,7 @@ public class DefaultNameResolver extends InetNameResolver {
     @Override
     protected void doResolve(String inetHost, Promise<InetAddress> promise) throws Exception {
         try {
-            promise.setSuccess(InetAddress.getByName(inetHost));
+            promise.setSuccess(SocketUtils.addressByName(inetHost));
         } catch (UnknownHostException e) {
             promise.setFailure(e);
         }

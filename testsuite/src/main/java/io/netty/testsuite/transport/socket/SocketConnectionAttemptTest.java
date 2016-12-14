@@ -109,7 +109,7 @@ public class SocketConnectionAttemptTest extends AbstractClientSocketTest {
         boolean badHostTimedOut = true;
         Socket socket = new Socket();
         try {
-            SocketUtils.connect(socket, new InetSocketAddress(BAD_HOST, BAD_PORT), 10);
+            SocketUtils.connect(socket, SocketUtils.socketAddress(BAD_HOST, BAD_PORT), 10);
         } catch (ConnectException e) {
             badHostTimedOut = false;
             // is thrown for no route to host when using Socket connect

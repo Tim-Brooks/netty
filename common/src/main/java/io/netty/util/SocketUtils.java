@@ -15,9 +15,11 @@
  */
 package io.netty.util;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.security.AccessController;
@@ -69,6 +71,19 @@ public final class SocketUtils {
             });
         } catch (PrivilegedActionException e) {
             throw (Exception) e.getCause();
+        }
+    }
+
+    public static InetAddress addressByName(final String hostname) throws UnknownHostException {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<InetAddress>() {
+                @Override
+                public InetAddress run() throws UnknownHostException {
+                    return InetAddress.getByName(hostname);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw (UnknownHostException) e.getCause();
         }
     }
 
