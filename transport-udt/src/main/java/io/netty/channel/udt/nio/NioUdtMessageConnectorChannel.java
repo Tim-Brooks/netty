@@ -95,7 +95,7 @@ public class NioUdtMessageConnectorChannel extends AbstractNioMessageChannel imp
 
     @Override
     protected void doBind(final SocketAddress localAddress) throws Exception {
-        javaChannel().bind(localAddress);
+        SocketUtils.bind(javaChannel(), localAddress);
     }
 
     @Override

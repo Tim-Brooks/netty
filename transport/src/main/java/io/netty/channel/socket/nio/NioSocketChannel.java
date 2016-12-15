@@ -315,9 +315,9 @@ public class NioSocketChannel extends AbstractNioByteChannel implements io.netty
 
     private void doBind0(SocketAddress localAddress) throws Exception {
         if (PlatformDependent.javaVersion() >= 7) {
-            javaChannel().bind(localAddress);
+            SocketUtils.bind(javaChannel(), localAddress);
         } else {
-            javaChannel().socket().bind(localAddress);
+            SocketUtils.bind(javaChannel().socket(), localAddress);
         }
     }
 
