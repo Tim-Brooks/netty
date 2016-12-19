@@ -93,7 +93,7 @@ public class NioUdtByteConnectorChannel extends AbstractNioByteChannel implement
 
     @Override
     protected void doBind(final SocketAddress localAddress) throws Exception {
-        priviledgedBind(javaChannel(), localAddress);
+        privilegedBind(javaChannel(), localAddress);
     }
 
     @Override
@@ -191,7 +191,7 @@ public class NioUdtByteConnectorChannel extends AbstractNioByteChannel implement
         return (InetSocketAddress) super.remoteAddress();
     }
 
-    private static void priviledgedBind(final SocketChannelUDT socketChannel, final SocketAddress localAddress)
+    private static void privilegedBind(final SocketChannelUDT socketChannel, final SocketAddress localAddress)
             throws IOException {
         try {
             AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
