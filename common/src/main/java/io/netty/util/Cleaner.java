@@ -13,14 +13,14 @@
 * License for the specific language governing permissions and limitations
 * under the License.
 */
-package io.netty.util.internal;
+package io.netty.util;
 
 import java.nio.ByteBuffer;
 
 /**
  * Allows to free direct {@link ByteBuffer}s.
  */
-interface Cleaner {
+public interface Cleaner {
 
     /**
      * Free a direct {@link ByteBuffer} if possible

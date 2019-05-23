@@ -15,6 +15,7 @@
  */
 package io.netty.buffer;
 
+import io.netty.util.Cleaner;
 import io.netty.util.internal.LongCounter;
 import io.netty.util.internal.PlatformDependent;
 import io.netty.util.internal.StringUtil;
@@ -71,7 +72,24 @@ public final class UnpooledByteBufAllocator extends AbstractByteBufAllocator imp
      *                            to allocate direct memory.
      */
     public UnpooledByteBufAllocator(boolean preferDirect, boolean disableLeakDetector, boolean tryNoCleaner) {
-        super(preferDirect);
+        this(preferDirect, disableLeakDetector, tryNoCleaner, null);
+    }
+
+    /**
+     * Create a new instance
+     *
+     * @param preferDirect {@code true} if {@link #buffer(int)} should try to allocate a direct buffer rather than
+     *                     a heap buffer
+     * @param disableLeakDetector {@code true} if the leak-detection should be disabled completely for this
+     *                            allocator. This can be useful if the user just want to depend on the GC to handle
+     *                            direct buffers when not explicit released.
+     * @param tryNoCleaner {@code true} if we should try to use {@link PlatformDependent#allocateDirectNoCleaner(int)}
+     *                            to allocate direct memory.
+     * @param cleaner cleaner to use when de-allocating direct buffers. Will call
+     *                {@link PlatformDependent#freeDirectBuffer(ByteBuffer)} if null.
+     */
+    public UnpooledByteBufAllocator(boolean preferDirect, boolean disableLeakDetector, boolean tryNoCleaner, Cleaner cleaner) {
+        super(preferDirect, cleaner);
         this.disableLeakDetector = disableLeakDetector;
         noCleaner = tryNoCleaner && PlatformDependent.hasUnsafe()
                 && PlatformDependent.hasDirectBufferNoCleanerConstructor();

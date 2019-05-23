@@ -777,7 +777,7 @@ abstract class PoolArena<T> implements PoolArenaMetric {
             if (PlatformDependent.useDirectBufferNoCleaner()) {
                 PlatformDependent.freeDirectNoCleaner(chunk.memory);
             } else {
-                PlatformDependent.freeDirectBuffer(chunk.memory);
+                parent.freeDirectBuffer(chunk.memory);
             }
         }
 

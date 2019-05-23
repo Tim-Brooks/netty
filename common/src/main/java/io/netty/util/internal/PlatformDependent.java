@@ -15,6 +15,7 @@
  */
 package io.netty.util.internal;
 
+import io.netty.util.Cleaner;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.jctools.queues.MpscArrayQueue;

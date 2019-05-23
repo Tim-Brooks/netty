@@ -18,10 +18,13 @@ package io.netty.buffer;
 
 import static io.netty.util.internal.ObjectUtil.checkPositiveOrZero;
 
+import io.netty.util.Cleaner;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakTracker;
 import io.netty.util.internal.PlatformDependent;
 import io.netty.util.internal.StringUtil;
+
+import java.nio.ByteBuffer;
 
 /**
  * Skeletal {@link ByteBufAllocator} implementation to extend.
@@ -81,13 +84,14 @@ public abstract class AbstractByteBufAllocator implements ByteBufAllocator {
     }
 
     private final boolean directByDefault;
+    private final Cleaner directCleaner;
     private final ByteBuf emptyBuf;
 
     /**
      * Instance use heap buffers by default
      */
     protected AbstractByteBufAllocator() {
-        this(false);
+        this(false, null);
     }
 
     /**
@@ -96,8 +100,9 @@ public abstract class AbstractByteBufAllocator implements ByteBufAllocator {
      * @param preferDirect {@code true} if {@link #buffer(int)} should try to allocate a direct buffer rather than
      *                     a heap buffer
      */
-    protected AbstractByteBufAllocator(boolean preferDirect) {
+    protected AbstractByteBufAllocator(boolean preferDirect, Cleaner cleaner) {
         directByDefault = preferDirect && PlatformDependent.hasUnsafe();
+        directCleaner = cleaner;
         emptyBuf = new EmptyByteBuf(this);
     }
 
@@ -279,5 +284,14 @@ public abstract class AbstractByteBufAllocator implements ByteBufAllocator {
         }
 
         return Math.min(newCapacity, maxCapacity);
+    }
+
+    @Override
+    public void freeDirectBuffer(ByteBuffer byteBuffer) {
+        if (directCleaner != null) {
+            directCleaner.freeDirectBuffer(byteBuffer);
+        } else {
+            PlatformDependent.freeDirectBuffer(byteBuffer);
+        }
     }
 }

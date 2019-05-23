@@ -15,6 +15,8 @@
  */
 package io.netty.buffer;
 
+import java.nio.ByteBuffer;
+
 /**
  * Implementations are responsible to allocate buffers. Implementations of this interface are expected to be
  * thread-safe.
@@ -131,4 +133,9 @@ public interface ByteBufAllocator {
      * {@code minNewCapacity} with {@code maxCapacity} as upper-bound.
      */
     int calculateNewCapacity(int minNewCapacity, int maxCapacity);
+
+    /**
+     * Frees direct byte buffers.
+     */
+    void freeDirectBuffer(ByteBuffer byteBuffer);
  }

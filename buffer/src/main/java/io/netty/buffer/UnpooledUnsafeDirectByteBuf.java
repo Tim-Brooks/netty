@@ -122,7 +122,7 @@ public class UnpooledUnsafeDirectByteBuf extends AbstractReferenceCountedByteBuf
      * Free a direct {@link ByteBuffer}
      */
     protected void freeDirect(ByteBuffer buffer) {
-        PlatformDependent.freeDirectBuffer(buffer);
+        alloc.freeDirectBuffer(buffer);
     }
 
     final void setByteBuffer(ByteBuffer buffer, boolean tryFree) {
